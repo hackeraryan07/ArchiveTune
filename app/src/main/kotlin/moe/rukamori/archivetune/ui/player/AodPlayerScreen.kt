@@ -1,6 +1,6 @@
 /*
  * ArchiveTune (2026)
- * © Rukamori — github.com/rukamorii
+ * © Rukamori — github.com/rukamori
  * GPL-3.0 License | Contributors: see git history
  * Do not remove or alter this notice. - Per GPL-3.0 Section 4 & Section 5
  */
@@ -243,7 +243,7 @@ fun AodPlayerScreen(
     val context = LocalContext.current
     val density = LocalDensity.current
     
-    // Fixed: Removed parenthetical wrapper (destructuring) to avoid compiling layout scoping fields internals
+    // Fixed: Removed component destructuring layout brackets to assign the preference state correctly
     val thumbnailShapeType = rememberEnumPreference(AodThumbnailShapeKey, AodThumbnailShape.ROUNDED)
     
     val (thumbnailSize) = rememberPreference(AodThumbnailSizeKey, 260f)
@@ -413,7 +413,7 @@ fun AodPlayerScreen(
             val window = (context as? Activity)?.window ?: (context as? android.service.dreams.DreamService)?.window
             window?.let { w ->
                 val lp = w.attributes
-                lp.screenBrightness = WindowManager.LayoutParams.BRIGNTNESS_OVERRIDE_NONE
+                lp.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
                 w.attributes = lp
             }
         }
