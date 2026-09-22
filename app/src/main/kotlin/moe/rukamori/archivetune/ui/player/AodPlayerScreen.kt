@@ -244,7 +244,7 @@ fun AodPlayerScreen(
     val density = LocalDensity.current
     
     // Fixed: Removed component destructuring layout brackets to assign the preference state correctly
-    val thumbnailShapeType = rememberEnumPreference(AodThumbnailShapeKey, AodThumbnailShape.ROUNDED)
+    val (thumbnailShapeType) = rememberEnumPreference(AodThumbnailShapeKey, AodThumbnailShape.ROUNDED)
     
     val (thumbnailSize) = rememberPreference(AodThumbnailSizeKey, 260f)
     val (thumbnailShapeRotation) = rememberPreference(AodThumbnailShapeRotationKey, 0)
