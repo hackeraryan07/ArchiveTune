@@ -160,8 +160,7 @@ private val White65 = Color.White.copy(alpha = 0.65f)
 private val White35 = Color.White.copy(alpha = 0.35f)
 private val White30 = Color.White.copy(alpha = 0.30f)
 private val White15 = Color.White.copy(alpha = 0.15f)
-private val AodLyricsWhitespaceRegex = "\s+".toRegex()
-
+private val AodLyricsWhitespaceRegex = "\\s+".toRegex()
 private data class AodLyricsTickerData(
     val lines: List<LyricsEntry>,
     val isTtml: Boolean,
