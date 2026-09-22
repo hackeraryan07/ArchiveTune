@@ -10,6 +10,7 @@
 package moe.rukamori.archivetune.ui.player
 
 import android.app.Activity
+import android.content.res.Configuration
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -30,7 +31,9 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -39,7 +42,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.weight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalIconButton
@@ -67,6 +73,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -474,6 +481,8 @@ fun AodPlayerScreen(
     val contentAlignment = contentPosition.toBoxAlignment()
     val textHorizontalAlignment = textAlignment.toHorizontalAlignment()
     val textAlign = textAlignment.toTextAlign()
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     BackHandler(enabled = true) {
         if (isLocked) {
@@ -555,27 +564,16 @@ fun AodPlayerScreen(
             }
         }
 
-        Column(
-            horizontalAlignment = textHorizontalAlignment,
-            verticalArrangement = Arrangement.spacedBy(verticalSpacing.coerceIn(8f, 36f).dp),
-            modifier =
-                Modifier
-                    .align(contentAlignment)
-                    .fillMaxWidth()
-                    .offset { pixelShiftOffset }
-                    .alpha(contentAlpha)
-                    .statusBarsPadding()
-                    .navigationBarsPadding()
-                    .padding(horizontal = horizontalPadding.coerceIn(16f, 72f).dp)
-                    .padding(vertical = 32.dp),
-        ) {
+        val clockContent: @Composable ColumnScope.() -> Unit = {
             AodClockWidget(
                 showClock = showClock,
                 clockStyle = clockStyle,
                 showBattery = showBattery,
                 accentColor = accentColor,
             )
+        }
 
+        val thumbnailContent: @Composable ColumnScope.() -> Unit = {
             AnimatedVisibility(
                 visible = showThumbnail && (!isLocked || !minimalLockedState),
                 enter = fadeIn(tween(300)),
@@ -606,7 +604,9 @@ fun AodPlayerScreen(
                 )
                 } 
             } 
+        }
 
+        val trackInfoContent: @Composable ColumnScope.() -> Unit = {
             Column(
                 horizontalAlignment = textHorizontalAlignment,
                 verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -679,7 +679,9 @@ fun AodPlayerScreen(
                     }
                 }
             }
+        }
 
+        val progressContent: @Composable ColumnScope.() -> Unit = {
             AnimatedVisibility(
                 visible = showProgress && !isAmbient && (!isLocked || !minimalLockedState),
                 enter = fadeIn(tween(300)),
@@ -703,7 +705,9 @@ fun AodPlayerScreen(
                     )
                 }
             }
+        }
 
+        val controlsContent: @Composable ColumnScope.() -> Unit = {
             AnimatedVisibility(
                 visible = showControls && !isAmbient && !isLocked,
                 enter = fadeIn(tween(300)),
@@ -730,7 +734,9 @@ fun AodPlayerScreen(
                     },
                 )
             }
+        }
 
+        val lockButtonContent: @Composable ColumnScope.() -> Unit = {
             AnimatedVisibility(
                 visible = !isLocked && !isAmbient,
                 enter = fadeIn(tween(300)),
@@ -744,6 +750,72 @@ fun AodPlayerScreen(
                     },
                     modifier = Modifier.padding(top = 12.dp),
                 )
+            }
+        }
+
+        if (isLandscape) {
+            // Landscape AOD layout: artwork + clock on the left, track info /
+            // progress / controls on the right so nothing gets cramped when
+            // the screen is wider than it is tall.
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(verticalSpacing.coerceIn(8f, 36f).dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier =
+                    Modifier
+                        .align(contentAlignment)
+                        .fillMaxWidth()
+                        .offset { pixelShiftOffset }
+                        .alpha(contentAlpha)
+                        .statusBarsPadding()
+                        .navigationBarsPadding()
+                        .padding(horizontal = horizontalPadding.coerceIn(16f, 72f).dp)
+                        .padding(vertical = 16.dp),
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.weight(0.45f),
+                ) {
+                    clockContent()
+                    thumbnailContent()
+                }
+
+                Column(
+                    horizontalAlignment = textHorizontalAlignment,
+                    verticalArrangement = Arrangement.spacedBy(verticalSpacing.coerceIn(8f, 36f).dp),
+                    modifier =
+                        Modifier
+                            .weight(0.55f)
+                            .fillMaxHeight()
+                            .verticalScroll(rememberScrollState()),
+                ) {
+                    trackInfoContent()
+                    progressContent()
+                    controlsContent()
+                    lockButtonContent()
+                }
+            }
+        } else {
+            Column(
+                horizontalAlignment = textHorizontalAlignment,
+                verticalArrangement = Arrangement.spacedBy(verticalSpacing.coerceIn(8f, 36f).dp),
+                modifier =
+                    Modifier
+                        .align(contentAlignment)
+                        .fillMaxWidth()
+                        .offset { pixelShiftOffset }
+                        .alpha(contentAlpha)
+                        .statusBarsPadding()
+                        .navigationBarsPadding()
+                        .padding(horizontal = horizontalPadding.coerceIn(16f, 72f).dp)
+                        .padding(vertical = 32.dp),
+            ) {
+                clockContent()
+                thumbnailContent()
+                trackInfoContent()
+                progressContent()
+                controlsContent()
+                lockButtonContent()
             }
         }
 
