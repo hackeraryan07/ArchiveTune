@@ -1,6 +1,6 @@
 /*
  * ArchiveTune (2026)
- * © Rukamori — github.com/rukamori
+ * © Rukamori — github.com/rukamorii
  * GPL-3.0 License | Contributors: see git history
  * Do not remove or alter this notice. - Per GPL-3.0 Section 4 & Section 5
  */
@@ -161,7 +161,7 @@ private val White65 = Color.White.copy(alpha = 0.65f)
 private val White35 = Color.White.copy(alpha = 0.35f)
 private val White30 = Color.White.copy(alpha = 0.30f)
 private val White15 = Color.White.copy(alpha = 0.15f)
-private val AodLyricsWhitespaceRegex = "\\s+".toRegex()
+private val AodLyricsWhitespaceRegex = "\s+".toRegex()
 
 private data class AodLyricsTickerData(
     val lines: List<LyricsEntry>,
@@ -242,7 +242,10 @@ fun AodPlayerScreen(
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
-    val (thumbnailShapeType) = rememberEnumPreference(AodThumbnailShapeKey, AodThumbnailShape.ROUNDED)
+    
+    // Fixed: Removed parenthetical wrapper (destructuring) to avoid compiling layout scoping fields internals
+    val thumbnailShapeType = rememberEnumPreference(AodThumbnailShapeKey, AodThumbnailShape.ROUNDED)
+    
     val (thumbnailSize) = rememberPreference(AodThumbnailSizeKey, 260f)
     val (thumbnailShapeRotation) = rememberPreference(AodThumbnailShapeRotationKey, 0)
     val (showThumbnail) = rememberPreference(AodShowThumbnailKey, true)
@@ -410,7 +413,7 @@ fun AodPlayerScreen(
             val window = (context as? Activity)?.window ?: (context as? android.service.dreams.DreamService)?.window
             window?.let { w ->
                 val lp = w.attributes
-                lp.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+                lp.screenBrightness = WindowManager.LayoutParams.BRIGNTNESS_OVERRIDE_NONE
                 w.attributes = lp
             }
         }
@@ -580,28 +583,28 @@ fun AodPlayerScreen(
                 exit = fadeOut(tween(300)),
             ) {
                 if (showThumbnail) {
-                AsyncImage(
-                    model = imageRequest,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier =
-                        Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .size(artworkSize)
-                            .then(
-                                if (artworkGlow && supportsArtworkGlowShadow) {
-                                    Modifier.shadow(
-                                        elevation = 28.dp,
-                                        shape = thumbnailShape,
-                                        clip = false,
-                                        ambientColor = accentColor,
-                                        spotColor = accentColor,
-                                    )
-                                } else {
-                                    Modifier
-                                },
-                            ).clip(thumbnailShape),
-                )
+                    AsyncImage(
+                        model = imageRequest,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier =
+                            Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .size(artworkSize)
+                                .then(
+                                    if (artworkGlow && supportsArtworkGlowShadow) {
+                                        Modifier.shadow(
+                                            elevation = 28.dp,
+                                            shape = thumbnailShape,
+                                            clip = false,
+                                            ambientColor = accentColor,
+                                            spotColor = accentColor,
+                                        )
+                                    } else {
+                                        Modifier
+                                    },
+                                ).clip(thumbnailShape),
+                    )
                 } 
             } 
         }
